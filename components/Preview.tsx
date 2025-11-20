@@ -8,6 +8,8 @@ interface PreviewProps {
 interface FrontmatterConfig {
   header?: string;
   date?: string;
+  'bg-image'?: string;
+  'bg-opacity'?: string;
   [key: string]: string | undefined;
 }
 
@@ -201,6 +203,10 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
   const dateText = getDisplayDate();
   const showHeader = headerText || (docConfig.date && docConfig.date !== 'false');
 
+  // Background Logic
+  const bgImage = docConfig['bg-image'];
+  const bgOpacity = docConfig['bg-opacity'] ? parseFloat(docConfig['bg-opacity']) : 1;
+
   return (
     <div className="flex flex-col items-center bg-slate-200/50 p-4 sm:p-8 overflow-y-auto h-full w-full">
       
@@ -219,10 +225,23 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
                 key={index} 
                 className="sheet"
             >
+                {/* Background Image Layer */}
+                {bgImage && (
+                  <div 
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `url("${bgImage}")`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      opacity: bgOpacity
+                    }}
+                  />
+                )}
+
                 {/* Page Header (Configurable) */}
                 {showHeader && (
                     <div 
-                        className="absolute top-8 left-0 right-0 flex justify-between items-end text-[10px] text-slate-400 uppercase tracking-wider font-medium pb-2 border-b border-slate-100/50" 
+                        className="absolute top-8 left-0 right-0 flex justify-between items-end text-[10px] text-slate-400 uppercase tracking-wider font-medium pb-2 border-b border-slate-100/50 z-10" 
                         style={{ paddingLeft: '15mm', paddingRight: '15mm' }}
                     >
                         <span>{headerText || ''}</span>
@@ -231,13 +250,13 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
                 )}
 
                 <div 
-                    className="pdf-content"
+                    className="pdf-content relative z-10"
                     style={{ fontFamily: font }}
                     dangerouslySetInnerHTML={{ __html: pageContent.join('') }}
                 />
                 
                 {/* Footer: Page X of Y */}
-                <div className="absolute bottom-5 left-0 w-full text-center text-xs text-slate-500 font-medium pointer-events-none">
+                <div className="absolute bottom-5 left-0 w-full text-center text-xs text-slate-500 font-medium pointer-events-none z-10">
                     Page {index + 1} of {pages.length}
                 </div>
             </div>

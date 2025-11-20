@@ -11,6 +11,8 @@ import {
 const DEFAULT_MARKDOWN = `---
 header: CONFIDENTIAL DOCUMENT
 date: true
+# bg-image: https://img.freepik.com/free-vector/white-abstract-background-design_23-2148825582.jpg
+# bg-opacity: 0.5
 ---
 # Markdown to PDF
 ## Introduction
@@ -18,6 +20,7 @@ Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert 
 
 ## Features
 - **Page Headers**: Configure header text and date at the top of the file.
+- **Page Backgrounds**: Set \`bg-image\` and \`bg-opacity\` in the config block.
 - **Live Preview**: See how your document looks as you type.
 - **AI Enhancement**: Use Gemini to fix grammar, improve tone, or summarize.
 - **Manual Pagination**: Insert page breaks exactly where you want them.
