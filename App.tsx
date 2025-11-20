@@ -38,11 +38,12 @@ const pdf = "generated";
 Start editing on the left panel to see changes instantly!
 `;
 
+// Font options - using standard unquoted names where possible for broad compatibility
 const FONT_OPTIONS = [
-    { name: 'Inter', value: "'Inter', sans-serif", label: 'Inter (Sans)' },
-    { name: 'Merriweather', value: "'Merriweather', serif", label: 'Merriweather (Serif)' },
-    { name: 'Roboto', value: "'Roboto', sans-serif", label: 'Roboto (Sans)' },
-    { name: 'Lora', value: "'Lora', serif", label: 'Lora (Serif)' },
+    { name: 'Inter', value: 'Inter, sans-serif', label: 'Inter (Sans)' },
+    { name: 'Merriweather', value: 'Merriweather, serif', label: 'Merriweather (Serif)' },
+    { name: 'Roboto', value: 'Roboto, sans-serif', label: 'Roboto (Sans)' },
+    { name: 'Lora', value: 'Lora, serif', label: 'Lora (Serif)' },
 ];
 
 const App: React.FC = () => {

@@ -16,6 +16,21 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
     }
   }, [markdown]);
 
+  // Define CSS variables safely for TypeScript
+  // We apply the font family here to ensure html2pdf sees it on the root element being exported
+  const containerStyle = {
+    width: '210mm',
+    minHeight: '297mm',
+    padding: '15mm',
+    boxSizing: 'border-box',
+    fontFamily: font, 
+  } as React.CSSProperties;
+
+  // Redundantly apply to inner content for immediate screen preview consistency
+  const contentStyle = {
+    fontFamily: font,
+  } as React.CSSProperties;
+
   return (
     <div className="flex flex-col items-center bg-slate-100 p-4 sm:p-8 overflow-y-auto h-full w-full">
         <div className="mb-4 text-slate-500 text-sm font-medium">
@@ -30,17 +45,12 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
       <div 
         id="pdf-export-container"
         className="bg-white shadow-xl transition-all duration-300 ease-in-out border border-slate-200"
-        style={{
-            width: '210mm',
-            minHeight: '297mm',
-            padding: '15mm', // Matches the PDF margin settings
-            boxSizing: 'border-box'
-        }}
+        style={containerStyle}
       >
         <div 
             ref={containerRef} 
             className="pdf-content"
-            style={{ fontFamily: font }}
+            style={contentStyle}
         >
             {/* Markdown content injected here */}
         </div>
