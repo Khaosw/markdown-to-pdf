@@ -31,7 +31,14 @@ export enum EditorMode {
     margin: number | [number, number, number, number];
     filename: string;
     image: { type: string; quality: number };
-    html2canvas: { scale: number; useCORS: boolean; logging: boolean };
+    html2canvas: { 
+        scale: number; 
+        useCORS: boolean; 
+        logging: boolean;
+        scrollY?: number;
+        windowWidth?: number;
+        [key: string]: any;
+    };
     jsPDF: { unit: string; format: string; orientation: string };
     pagebreak?: { mode?: string[]; before?: string[]; avoid?: string[] };
   }

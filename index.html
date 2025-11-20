@@ -15,66 +15,98 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #f8fafc; /* Slate 50 */
+        background-color: #e2e8f0; /* Darker background to make white pages pop */
         color: #1e293b; /* Slate 800 */
       }
       
       /* -------------------------------------------------------------------------- */
+      /* Visual Page Simulation (A4 Sheet)                                          */
+      /* -------------------------------------------------------------------------- */
+      
+      .sheet {
+        background-color: white;
+        margin: 0 auto 2rem auto; /* Centered with bottom gap */
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        /* A4 Dimensions */
+        width: 210mm;
+        min-height: 297mm; /* Ensure it looks like A4 even if empty */
+        height: 297mm;     /* Fixed height for preview pagination accuracy */
+        padding: 15mm;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden; /* Hide overflow content in preview */
+        break-inside: avoid; /* Prevent splitting a single sheet in PDF */
+      }
+
+      /* Ensure subsequent sheets start on a new page */
+      .sheet:not(:first-of-type) {
+        page-break-before: always;
+        break-before: page;
+      }
+
+      /* -------------------------------------------------------------------------- */
       /* PDF Export & Page Break Logic                                              */
       /* -------------------------------------------------------------------------- */
 
-      /* The actual page break element - always forces a break in PDF/Print */
+      /* The manual page break element */
       .page-break {
         display: block;
         height: 0;
         margin: 0;
         border: none;
-        page-break-before: always;
-        break-before: page;
       }
 
-      /* VISUALIZATION ON SCREEN ONLY */
-      /* When strictly viewing on screen (and not exporting), show the dashed line */
-      #pdf-export-container:not(.exporting-pdf) .page-break {
-        margin: 2rem 0;
-        padding-top: 0;
-        border-top: 2px dashed #cbd5e1; /* Slate 300 */
+      /* VISUALIZATION ON SCREEN ONLY (Inside a sheet) */
+      .sheet .page-break {
+        border-top: 2px dashed #cbd5e1;
+        margin: 1rem 0;
         position: relative;
-        height: 0;
         width: 100%;
         display: block;
       }
-
-      #pdf-export-container:not(.exporting-pdf) .page-break::after {
+      
+      .sheet .page-break::after {
         content: 'PAGE BREAK';
         position: absolute;
         top: -0.75rem;
         left: 50%;
         transform: translateX(-50%);
         background-color: #fff;
-        color: #94a3b8; /* Slate 400 */
+        color: #94a3b8;
         padding: 0 0.5rem;
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         font-weight: 600;
         border-radius: 4px;
-        letter-spacing: 0.05em;
-        z-index: 1;
       }
 
       /* 
        * EXPORT MODE OVERRIDES 
-       * When exporting, we remove the padding from the container because html2pdf 
-       * adds its own margins. This prevents "double margins" which squeeze content 
-       * (especially tables) into a narrow column.
        */
       #pdf-export-container.exporting-pdf {
-        padding: 0 !important; 
+        /* When exporting, we want the container to be transparent/white */
+        background: white !important;
+        padding: 0 !important;
+        width: 210mm !important;
+      }
+
+      #pdf-export-container.exporting-pdf .sheet {
         margin: 0 !important;
-        border: none !important;
         box-shadow: none !important;
-        /* Ensure width allows for scaling if needed, but typically 
-           removing padding gives back 30mm of horizontal space */
-        width: 100% !important; 
+        /* 
+           CRITICAL FIX: 
+           We set height to 296mm (1mm less than A4 297mm).
+           1. Fixed height ensures the absolute positioned footer stays at the bottom.
+           2. Slightly reduced height prevents browser rounding errors (e.g. 297.01mm)
+              from triggering an accidental page overflow that causes blank pages.
+        */
+        height: 296mm !important; 
+        min-height: 296mm !important;
+        overflow: hidden !important;
+        position: relative !important;
+      }
+      
+      #pdf-export-container.exporting-pdf .page-break {
+        display: none !important; /* Hide the visual dashed line in PDF */
       }
 
       /* -------------------------------------------------------------------------- */
@@ -82,59 +114,60 @@
       /* -------------------------------------------------------------------------- */
       
       .pdf-content {
-        /* Font family is now controlled via inline styles from React */
         color: #1e293b;
         line-height: 1.6;
+        height: 100%;
       }
       
       /* Headings */
       .pdf-content h1, .pdf-content h2, .pdf-content h3, .pdf-content h4, .pdf-content h5, .pdf-content h6 {
-        color: #0f172a; /* Slate 900 */
+        color: #0f172a; 
         font-weight: 700;
-        margin-top: 1.5em;
+        margin-top: 1em; 
         margin-bottom: 0.5em;
-        page-break-after: avoid;
-        clear: both; /* Prevent floating images from overlapping headings */
+        clear: both; 
       }
+      /* Reduce top margin for headings if they are at the top of a page */
+      .pdf-content > *:first-child {
+        margin-top: 0 !important;
+      }
+
       .pdf-content h1 { font-size: 2.25rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.3em; }
       .pdf-content h2 { font-size: 1.75rem; }
       .pdf-content h3 { font-size: 1.5rem; }
       
       /* Text */
-      .pdf-content p { margin-bottom: 1em; text-align: justify; }
-      .pdf-content ul, .pdf-content ol { margin-bottom: 1em; padding-left: 1.5em; }
-      .pdf-content li { margin-bottom: 0.5em; }
+      .pdf-content p { margin-bottom: 0.8em; text-align: justify; }
+      .pdf-content ul, .pdf-content ol { margin-bottom: 0.8em; padding-left: 1.5em; }
+      .pdf-content li { margin-bottom: 0.3em; }
       
-      /* Blockquotes - Light Style */
+      /* Blockquotes */
       .pdf-content blockquote {
-        border-left: 4px solid #cbd5e1; /* Lighter border */
-        background-color: #f8fafc; /* Very light slate */
+        border-left: 4px solid #cbd5e1;
+        background-color: #f8fafc;
         color: #475569;
-        padding: 1em;
-        margin: 1.5em 0;
+        padding: 0.8em;
+        margin: 1em 0;
         font-style: italic;
-        page-break-inside: avoid;
       }
       
-      /* Code Blocks - Light Style */
+      /* Code Blocks */
       .pdf-content pre {
-        background-color: #f8fafc; /* Light background */
-        border: 1px solid #e2e8f0; /* Subtle border */
-        color: #334155; /* Darker text for contrast */
-        padding: 1em;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        padding: 0.8em;
         border-radius: 0.5em;
         overflow-x: auto;
         font-family: 'JetBrains Mono', monospace;
-        margin: 1.5em 0;
-        page-break-inside: avoid;
-        white-space: pre-wrap; /* Allow wrapping in PDF */
+        margin: 1em 0;
+        white-space: pre-wrap;
         clear: both;
       }
       
-      /* Inline Code - Light Style */
       .pdf-content code {
         background-color: #f1f5f9;
-        color: #dc2626; /* Red 600 for visibility */
+        color: #dc2626;
         padding: 0.2em 0.4em;
         border-radius: 0.25em;
         font-family: 'JetBrains Mono', monospace;
@@ -142,7 +175,6 @@
         border: 1px solid #e2e8f0;
       }
       
-      /* Fix nested code in pre to not double-style */
       .pdf-content pre code {
         background-color: transparent;
         color: inherit;
@@ -150,14 +182,13 @@
         border: none;
       }
       
-      /* Tables - Auto layout for adaptive columns */
+      /* Tables */
       .pdf-content table {
         width: 100%;
         max-width: 100%;
         border-collapse: collapse;
-        margin: 1.5em 0;
-        page-break-inside: avoid;
-        table-layout: auto; /* Changed to auto to adapt to content width */
+        margin: 1em 0;
+        table-layout: auto; 
         font-size: 0.8rem; 
         display: table;
         clear: both;
@@ -165,13 +196,11 @@
       
       .pdf-content th, .pdf-content td {
         border: 1px solid #cbd5e1;
-        padding: 0.4em; /* Tight padding */
+        padding: 0.4em;
         text-align: left;
         vertical-align: top;
-        
-        /* Aggressive breaking to prevent overflow */
         word-wrap: break-word;
-        overflow-wrap: anywhere; /* Supports breaking long URLs/strings anywhere */
+        overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;
       }
@@ -187,44 +216,29 @@
         max-width: 100%;
         height: auto;
         display: block;
-        margin: 1.5em auto; /* Default center */
+        margin: 1em auto;
         border-radius: 0.5em;
-        page-break-inside: avoid;
       }
 
       /* Image Alignment Classes */
-      .pdf-content img.align-left {
-        margin-left: 0;
-        margin-right: auto;
+      .pdf-content img.align-left { margin-left: 0; margin-right: auto; }
+      .pdf-content img.align-right { margin-left: auto; margin-right: 0; }
+      /* Explicit centering */
+      .pdf-content img.align-center { 
+        display: block; 
+        margin-left: auto; 
+        margin-right: auto; 
+        float: none; 
       }
-      
-      .pdf-content img.align-right {
-        margin-left: auto;
-        margin-right: 0;
-      }
-      
-      .pdf-content img.align-center {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        float: none;
-      }
-      
-      .pdf-content img.align-full {
-        width: 100%;
-        max-width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-      }
+      .pdf-content img.align-full { width: 100%; max-width: 100%; margin-left: 0; margin-right: 0; }
 
-      /* Floating Images (Text Wrap) */
+      /* Floating Images */
       .pdf-content img.float-left {
         float: left;
         margin-right: 1.5em;
         margin-bottom: 1em;
         max-width: 50%;
       }
-
       .pdf-content img.float-right {
         float: right;
         margin-left: 1.5em;
@@ -232,20 +246,9 @@
         max-width: 50%;
       }
 
-      /* Grid Layouts (Side by Side) */
-      .pdf-content img.width-half {
-        width: 48%;
-        display: inline-block;
-        margin: 0.5%;
-        vertical-align: top;
-      }
-      
-      .pdf-content img.width-third {
-        width: 31%;
-        display: inline-block;
-        margin: 0.5%;
-        vertical-align: top;
-      }
+      /* Grid Layouts */
+      .pdf-content img.width-half { width: 48%; display: inline-block; margin: 0.5%; vertical-align: top; }
+      .pdf-content img.width-third { width: 31%; display: inline-block; margin: 0.5%; vertical-align: top; }
     </style>
   <script type="importmap">
 {
