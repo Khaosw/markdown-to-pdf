@@ -4,7 +4,7 @@ import { downloadPDF } from './utils/pdfUtils';
 import { EditorMode } from './types';
 import Preview from './components/Preview';
 import { 
-    IconWand, IconDownload, IconEye, IconPen, IconSplit, IconRefresh, IconTrash, IconPageBreak, IconFont, IconImage
+    IconWand, IconDownload, IconEye, IconPen, IconSplit, IconRefresh, IconTrash, IconPageBreak, IconFont, IconImage, IconCornerDownLeft
 } from './components/Icons';
 
 // Default markdown placeholder
@@ -110,6 +110,27 @@ const App: React.FC = () => {
 
   const insertPageBreak = () => {
     const breakMarker = '\n\n<div class="page-break"></div>\n\n';
+    if (textareaRef.current) {
+        const start = textareaRef.current.selectionStart;
+        const end = textareaRef.current.selectionEnd;
+        const newMarkdown = markdown.substring(0, start) + breakMarker + markdown.substring(end);
+        setMarkdown(newMarkdown);
+        
+        // Return focus to textarea after state update
+        setTimeout(() => {
+            if(textareaRef.current) {
+                textareaRef.current.focus();
+                const newCursorPos = start + breakMarker.length;
+                textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+            }
+        }, 0);
+    } else {
+        setMarkdown(markdown + breakMarker);
+    }
+  };
+
+  const insertLineBreak = () => {
+    const breakMarker = '<br>';
     if (textareaRef.current) {
         const start = textareaRef.current.selectionStart;
         const end = textareaRef.current.selectionEnd;
@@ -305,6 +326,14 @@ const App: React.FC = () => {
                         title="Insert Local Image"
                     >
                         <IconImage className="w-3 h-3" /> Image
+                    </button>
+                    <div className="w-px h-4 bg-slate-300"></div>
+                    <button 
+                        onClick={insertLineBreak} 
+                        className="text-slate-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
+                        title="Insert Line Break"
+                    >
+                        <IconCornerDownLeft className="w-3 h-3" /> Line Break
                     </button>
                     <div className="w-px h-4 bg-slate-300"></div>
                     <button 
