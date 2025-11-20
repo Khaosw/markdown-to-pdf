@@ -87,6 +87,7 @@
         background: white !important;
         padding: 0 !important;
         width: 210mm !important;
+        text-rendering: geometricPrecision;
       }
 
       #pdf-export-container.exporting-pdf .sheet {
@@ -107,6 +108,15 @@
       
       #pdf-export-container.exporting-pdf .page-break {
         display: none !important; /* Hide the visual dashed line in PDF */
+      }
+
+      /* 
+         Specific fix for table text visibility during export:
+         Ensure text color is solid black to prevent transparency issues in some PDF renders
+      */
+      #pdf-export-container.exporting-pdf .pdf-content td,
+      #pdf-export-container.exporting-pdf .pdf-content th {
+        color: #000000 !important;
       }
 
       /* -------------------------------------------------------------------------- */
@@ -208,14 +218,20 @@
       
       /* Specific fix for code blocks inside tables to ensure they wrap and display */
       .pdf-content td code {
-        white-space: pre-wrap;
-        word-break: break-all;
+        white-space: normal; /* Changed from pre-wrap to normal for table stability */
+        word-break: break-word; /* Changed from break-all */
       }
       
       .pdf-content th {
-        background-color: #f1f5f9;
+        /* Semi-transparent slate background for headers */
+        background-color: rgba(226, 232, 240, 0.7); 
         font-weight: 600;
         color: #0f172a;
+      }
+
+      /* Striped rows with lighter transparent background */
+      .pdf-content tbody tr:nth-child(even) {
+        background-color: rgba(241, 245, 249, 0.5);
       }
       
       /* Images */
