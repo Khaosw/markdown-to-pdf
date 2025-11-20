@@ -8,11 +8,16 @@ import {
 } from './components/Icons';
 
 // Default markdown placeholder
-const DEFAULT_MARKDOWN = `# Markdown to PDF
+const DEFAULT_MARKDOWN = `---
+header: CONFIDENTIAL DOCUMENT
+date: true
+---
+# Markdown to PDF
 ## Introduction
 Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert it into a beautifully paginated PDF.
 
 ## Features
+- **Page Headers**: Configure header text and date at the top of the file.
 - **Live Preview**: See how your document looks as you type.
 - **AI Enhancement**: Use Gemini to fix grammar, improve tone, or summarize.
 - **Manual Pagination**: Insert page breaks exactly where you want them.

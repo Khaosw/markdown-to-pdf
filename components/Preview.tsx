@@ -5,9 +5,42 @@ interface PreviewProps {
   font: string;
 }
 
+interface FrontmatterConfig {
+  header?: string;
+  date?: string;
+  [key: string]: string | undefined;
+}
+
+const parseFrontmatter = (text: string): { config: FrontmatterConfig; content: string } => {
+  // Regex to match YAML-like frontmatter at the start of the file
+  // Matches --- followed by content, followed by ---
+  const regex = /^---\n([\s\S]*?)\n---\n/;
+  const match = text.match(regex);
+  
+  if (match) {
+    const frontmatterBlock = match[1];
+    const content = text.replace(match[0], ''); // Remove the full match
+    
+    const config: FrontmatterConfig = {};
+    frontmatterBlock.split('\n').forEach(line => {
+      const parts = line.split(':');
+      if (parts.length >= 2) {
+        const key = parts[0].trim();
+        // Rejoin the rest in case the value has colons (e.g. timestamps)
+        const value = parts.slice(1).join(':').trim();
+        config[key] = value;
+      }
+    });
+    return { config, content };
+  }
+  
+  return { config: {}, content: text };
+};
+
 const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
   // State to hold the array of pages (each page is an array of HTML strings)
   const [pages, setPages] = useState<string[][]>([]);
+  const [docConfig, setDocConfig] = useState<FrontmatterConfig>({});
   
   // A ref to a hidden container used for measuring element heights
   const measureRef = useRef<HTMLDivElement>(null);
@@ -61,8 +94,12 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
     const paginate = async () => {
       if (!window.marked || !measureRef.current) return;
 
-      // 1. Parse Markdown to HTML
-      const parseResult = window.marked.parse(markdown);
+      // 0. Parse Frontmatter to separate config from content
+      const { config, content } = parseFrontmatter(markdown);
+      setDocConfig(config);
+
+      // 1. Parse Markdown Content to HTML
+      const parseResult = window.marked.parse(content);
       const fullHtml = parseResult instanceof Promise ? await parseResult : parseResult;
 
       // 2. Inject into hidden container to measure
@@ -95,14 +132,6 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
                 currentPage = [];
                 currentHeight = 0;
             }
-            // Note: We don't add the 'page-break' div itself to the visible page content 
-            // because the break is implicit by starting a new array.
-            // However, for visualization in 'Screen Mode', we might want to see it?
-            // The user logic inserts <div class="page-break"></div>.
-            // If we ignore it, it won't show up. Let's check style requirements.
-            // Requirement: "‘page break’ do not show in pdf."
-            // If we skip adding it to the DOM array, it won't show.
-            // But to separate content, we just start a new page loop.
             continue; 
         }
 
@@ -110,8 +139,6 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
         const childHtml = child.outerHTML;
 
         // Check if this element fits on the current page
-        // If it's a huge element (larger than page), we force it onto a new page and let it clip/overflow
-        // or we just put it here if page is empty.
         if (currentHeight + childHeight > MAX_PAGE_HEIGHT && currentPage.length > 0) {
             // Content overflow -> New Page
             newPages.push(currentPage);
@@ -157,6 +184,23 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
     boxSizing: 'border-box',
   };
 
+  // Date Logic
+  const getDisplayDate = () => {
+    if (docConfig.date === 'false') return null;
+    if (docConfig.date && docConfig.date !== 'true') return docConfig.date;
+    
+    // Default to today if date is 'true' or undefined but header is present
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const headerText = docConfig.header;
+  const dateText = getDisplayDate();
+  const showHeader = headerText || (docConfig.date && docConfig.date !== 'false');
+
   return (
     <div className="flex flex-col items-center bg-slate-200/50 p-4 sm:p-8 overflow-y-auto h-full w-full">
       
@@ -175,6 +219,17 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
                 key={index} 
                 className="sheet"
             >
+                {/* Page Header (Configurable) */}
+                {showHeader && (
+                    <div 
+                        className="absolute top-8 left-0 right-0 flex justify-between items-end text-[10px] text-slate-400 uppercase tracking-wider font-medium pb-2 border-b border-slate-100/50" 
+                        style={{ paddingLeft: '15mm', paddingRight: '15mm' }}
+                    >
+                        <span>{headerText || ''}</span>
+                        <span>{dateText || ''}</span>
+                    </div>
+                )}
+
                 <div 
                     className="pdf-content"
                     style={{ fontFamily: font }}
