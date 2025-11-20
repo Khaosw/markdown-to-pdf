@@ -199,10 +199,17 @@
         padding: 0.4em;
         text-align: left;
         vertical-align: top;
+        
+        /* Safer wrapping for PDF generation compatibility */
         word-wrap: break-word;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
+        overflow-wrap: break-word;
+        hyphens: manual;
+      }
+      
+      /* Specific fix for code blocks inside tables to ensure they wrap and display */
+      .pdf-content td code {
+        white-space: pre-wrap;
+        word-break: break-all;
       }
       
       .pdf-content th {

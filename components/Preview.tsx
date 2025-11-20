@@ -10,6 +10,8 @@ interface FrontmatterConfig {
   date?: string;
   'bg-image'?: string;
   'bg-opacity'?: string;
+  'bg-rotate'?: string;
+  'bg-fit'?: string;
   [key: string]: string | undefined;
 }
 
@@ -206,6 +208,13 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
   // Background Logic
   const bgImage = docConfig['bg-image'];
   const bgOpacity = docConfig['bg-opacity'] ? parseFloat(docConfig['bg-opacity']) : 1;
+  const bgRotate = docConfig['bg-rotate'] || '0';
+  // Map configuration to valid CSS background-size
+  let bgSize = 'cover'; // Default
+  if (docConfig['bg-fit'] === 'stretch') bgSize = '100% 100%';
+  else if (docConfig['bg-fit'] === 'contain') bgSize = 'contain';
+
+  const rotationVal = bgRotate.includes('deg') ? bgRotate : `${bgRotate}deg`;
 
   return (
     <div className="flex flex-col items-center bg-slate-200/50 p-4 sm:p-8 overflow-y-auto h-full w-full">
@@ -228,12 +237,15 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
                 {/* Background Image Layer */}
                 {bgImage && (
                   <div 
-                    className="absolute inset-0 z-0 pointer-events-none"
+                    className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
                     style={{
                       backgroundImage: `url("${bgImage}")`,
-                      backgroundSize: 'cover',
+                      backgroundSize: bgSize,
                       backgroundPosition: 'center',
-                      opacity: bgOpacity
+                      backgroundRepeat: 'no-repeat',
+                      opacity: bgOpacity,
+                      transform: `rotate(${rotationVal})`,
+                      transformOrigin: 'center center'
                     }}
                   />
                 )}
