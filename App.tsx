@@ -4,7 +4,7 @@ import { downloadPDF } from './utils/pdfUtils';
 import { EditorMode } from './types';
 import Preview from './components/Preview';
 import { 
-    IconWand, IconDownload, IconEye, IconPen, IconSplit, IconRefresh, IconTrash, IconPageBreak, IconFont
+    IconWand, IconDownload, IconEye, IconPen, IconSplit, IconRefresh, IconTrash, IconPageBreak, IconFont, IconImage
 } from './components/Icons';
 
 // Default markdown placeholder
@@ -18,6 +18,7 @@ Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert 
 - **Manual Pagination**: Insert page breaks exactly where you want them.
 - **Custom Fonts**: Switch between Serif, Sans-Serif, and more.
 - **Image Layouts**: Align images easily using hash tags.
+- **Local Images**: Upload images directly from your computer.
 
 ## Image Layout Examples
 You can control image alignment by adding hash tags to the image URL.
@@ -71,6 +72,7 @@ const App: React.FC = () => {
   const [selectedFont, setSelectedFont] = useState(FONT_OPTIONS[0].value);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAiAction = async (action: 'grammar' | 'professional' | 'toc' | 'summarize') => {
     setIsEnhancing(true);
@@ -127,8 +129,56 @@ const App: React.FC = () => {
     }
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        const imageName = file.name.split('.')[0] || 'Image';
+        // Create markdown syntax: ![ImageName](data:image/png;base64,...)
+        const imageMarkdown = `![${imageName}](${base64})`;
+
+        if (textareaRef.current) {
+            const start = textareaRef.current.selectionStart;
+            const end = textareaRef.current.selectionEnd;
+            const newMarkdown = markdown.substring(0, start) + imageMarkdown + markdown.substring(end);
+            setMarkdown(newMarkdown);
+            
+            // Restore focus but don't select the huge base64 string to avoid scrolling issues
+            setTimeout(() => {
+                if(textareaRef.current) {
+                    textareaRef.current.focus();
+                    const newCursorPos = start + imageMarkdown.length;
+                    textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+                }
+            }, 0);
+        } else {
+            setMarkdown(markdown + '\n' + imageMarkdown);
+        }
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset input value so the same file can be selected again if needed
+    if (event.target.value) event.target.value = '';
+  };
+
   return (
     <div className="h-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden">
+      {/* Hidden File Input */}
+      <input 
+        type="file" 
+        accept="image/*" 
+        ref={fileInputRef} 
+        className="hidden" 
+        onChange={handleFileChange}
+      />
+
       {/* Header */}
       <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0 z-10 shadow-sm">
         <div className="flex items-center gap-3">
@@ -248,7 +298,15 @@ const App: React.FC = () => {
         `}>
             <div className="bg-slate-50 px-4 py-2 text-xs font-mono text-slate-500 flex justify-between items-center border-b border-slate-200">
                 <span className="font-semibold tracking-wider">MARKDOWN</span>
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center">
+                    <button 
+                        onClick={handleImageClick} 
+                        className="text-slate-600 hover:text-blue-600 flex items-center gap-1 transition-colors"
+                        title="Insert Local Image"
+                    >
+                        <IconImage className="w-3 h-3" /> Image
+                    </button>
+                    <div className="w-px h-4 bg-slate-300"></div>
                     <button 
                         onClick={insertPageBreak} 
                         className="text-slate-600 hover:text-blue-600 flex items-center gap-1 transition-colors"

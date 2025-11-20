@@ -31,7 +31,8 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
             // Fail gracefully if href is not a string
             if (typeof href !== 'string') return '';
 
-            const [url, hash] = href.split('#');
+            const [url, rawHash] = href.split('#');
+            const hash = rawHash ? rawHash.toLowerCase() : '';
             let className = '';
             
             if (hash === 'left') className = 'align-left';
