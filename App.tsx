@@ -17,12 +17,18 @@ Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert 
 - **AI Enhancement**: Use Gemini to fix grammar, improve tone, or summarize.
 - **Manual Pagination**: Insert page breaks exactly where you want them.
 - **Custom Fonts**: Switch between Serif, Sans-Serif, and more.
+- **Image Layouts**: Align images easily using hash tags.
 
-## Code Example
-\`\`\`javascript
-console.log("Hello, World!");
-const pdf = "generated";
-\`\`\`
+## Image Alignment Example
+You can control image alignment by adding \`#left\`, \`#center\`, \`#right\`, or \`#full\` to the image URL.
+
+![Left Aligned](https://via.placeholder.com/150/0000FF/808080?text=Left#left)
+*This image is left aligned.*
+
+![Right Aligned](https://via.placeholder.com/150/FF0000/FFFFFF?text=Right#right)
+*This image is right aligned.*
+
+![Full Width](https://via.placeholder.com/600x100/008000/FFFFFF?text=Full+Width+Banner#full)
 
 ## Typography
 > "Design is not just what it looks like and feels like. Design is how it works." - Steve Jobs

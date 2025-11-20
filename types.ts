@@ -13,7 +13,8 @@ export enum EditorMode {
   declare global {
     interface Window {
       marked: {
-        parse: (text: string) => string;
+        parse: (text: string) => string | Promise<string>;
+        use: (options: any) => void;
       };
       html2pdf: () => {
         set: (opt: any) => any;

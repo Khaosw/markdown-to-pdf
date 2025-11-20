@@ -184,9 +184,32 @@
         max-width: 100%;
         height: auto;
         display: block;
-        margin: 1.5em auto;
+        margin: 1.5em auto; /* Default center */
         border-radius: 0.5em;
         page-break-inside: avoid;
+      }
+
+      /* Image Alignment Classes */
+      .pdf-content img.align-left {
+        margin-left: 0;
+        margin-right: auto;
+      }
+      
+      .pdf-content img.align-right {
+        margin-left: auto;
+        margin-right: 0;
+      }
+      
+      .pdf-content img.align-center {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .pdf-content img.align-full {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
       }
     </style>
   <script type="importmap">
