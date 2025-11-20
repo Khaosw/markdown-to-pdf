@@ -19,16 +19,25 @@ Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert 
 - **Custom Fonts**: Switch between Serif, Sans-Serif, and more.
 - **Image Layouts**: Align images easily using hash tags.
 
-## Image Alignment Example
-You can control image alignment by adding \`#left\`, \`#center\`, \`#right\`, or \`#full\` to the image URL.
+## Image Layout Examples
+You can control image alignment by adding hash tags to the image URL.
 
-![Left Aligned](https://via.placeholder.com/150/0000FF/808080?text=Left#left)
-*This image is left aligned.*
+### Standard Alignment
+\`#left\`, \`#center\`, \`#right\`, \`#full\`
 
 ![Right Aligned](https://via.placeholder.com/150/FF0000/FFFFFF?text=Right#right)
 *This image is right aligned.*
 
-![Full Width](https://via.placeholder.com/600x100/008000/FFFFFF?text=Full+Width+Banner#full)
+### Text Wrapping
+Use \`#float-left\` or \`#float-right\` to wrap text around images.
+
+![Float Left](https://via.placeholder.com/150/0000FF/FFFFFF?text=Float+Left#float-left)
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+### Grid Layout
+Use \`#half\` or \`#third\` to place images side-by-side.
+
+![Half Width 1](https://via.placeholder.com/300x150/008000/FFFFFF?text=Half+Width+1#half) ![Half Width 2](https://via.placeholder.com/300x150/FFA500/FFFFFF?text=Half+Width+2#half)
 
 ## Typography
 > "Design is not just what it looks like and feels like. Design is how it works." - Steve Jobs

@@ -38,6 +38,10 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
             else if (hash === 'right') className = 'align-right';
             else if (hash === 'center') className = 'align-center';
             else if (hash === 'full') className = 'align-full';
+            else if (hash === 'float-left') className = 'float-left';
+            else if (hash === 'float-right') className = 'float-right';
+            else if (hash === 'half') className = 'width-half';
+            else if (hash === 'third') className = 'width-third';
             
             const titleAttr = imgTitle ? ` title="${imgTitle}"` : '';
             const altAttr = imgText ? ` alt="${imgText}"` : '';

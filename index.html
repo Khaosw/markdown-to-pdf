@@ -88,12 +88,13 @@
       }
       
       /* Headings */
-      .pdf-content h1, .pdf-content h2, .pdf-content h3, .pdf-content h4 {
+      .pdf-content h1, .pdf-content h2, .pdf-content h3, .pdf-content h4, .pdf-content h5, .pdf-content h6 {
         color: #0f172a; /* Slate 900 */
         font-weight: 700;
         margin-top: 1.5em;
         margin-bottom: 0.5em;
         page-break-after: avoid;
+        clear: both; /* Prevent floating images from overlapping headings */
       }
       .pdf-content h1 { font-size: 2.25rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.3em; }
       .pdf-content h2 { font-size: 1.75rem; }
@@ -127,6 +128,7 @@
         margin: 1.5em 0;
         page-break-inside: avoid;
         white-space: pre-wrap; /* Allow wrapping in PDF */
+        clear: both;
       }
       
       /* Inline Code - Light Style */
@@ -158,6 +160,7 @@
         table-layout: auto; /* Changed to auto to adapt to content width */
         font-size: 0.8rem; 
         display: table;
+        clear: both;
       }
       
       .pdf-content th, .pdf-content td {
@@ -210,6 +213,36 @@
         max-width: 100%;
         margin-left: 0;
         margin-right: 0;
+      }
+
+      /* Floating Images (Text Wrap) */
+      .pdf-content img.float-left {
+        float: left;
+        margin-right: 1.5em;
+        margin-bottom: 1em;
+        max-width: 50%;
+      }
+
+      .pdf-content img.float-right {
+        float: right;
+        margin-left: 1.5em;
+        margin-bottom: 1em;
+        max-width: 50%;
+      }
+
+      /* Grid Layouts (Side by Side) */
+      .pdf-content img.width-half {
+        width: 48%;
+        display: inline-block;
+        margin: 0.5%;
+        vertical-align: top;
+      }
+      
+      .pdf-content img.width-third {
+        width: 31%;
+        display: inline-block;
+        margin: 0.5%;
+        vertical-align: top;
       }
     </style>
   <script type="importmap">
