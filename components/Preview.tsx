@@ -12,6 +12,8 @@ interface FrontmatterConfig {
   'bg-opacity'?: string;
   'bg-rotate'?: string;
   'bg-fit'?: string;
+  'bg-size'?: string;
+  'bg-repeat'?: string;
   [key: string]: string | undefined;
 }
 
@@ -46,13 +48,47 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
   const [pages, setPages] = useState<string[][]>([]);
   const [docConfig, setDocConfig] = useState<FrontmatterConfig>({});
   
+  // Track if libraries are ready to avoid race conditions
+  const [markedReady, setMarkedReady] = useState(false);
+  
+  // Guard to prevent double initialization in StrictMode
+  const isMarkedInit = useRef(false);
+
   // A ref to a hidden container used for measuring element heights
   const measureRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Marked.js configuration once
+  // Initialize Marked.js configuration once logic
   useEffect(() => {
+    // Simple polling to wait for script load if it's slightly delayed
+    const checkInterval = setInterval(() => {
+        if (window.marked && !markedReady) {
+            setMarkedReady(true);
+            clearInterval(checkInterval);
+        }
+    }, 100);
+
     if (window.marked) {
-      // Custom renderer to handle image alignment via URL hash
+        setMarkedReady(true);
+        clearInterval(checkInterval);
+    }
+
+    return () => clearInterval(checkInterval);
+  }, []);
+
+  // Configure Marked once ready
+  useEffect(() => {
+    if (markedReady && window.marked && !isMarkedInit.current) {
+      isMarkedInit.current = true;
+
+      // 1. Register KaTeX Extension if available
+      if (window.markedKatex) {
+        window.marked.use(window.markedKatex({
+          throwOnError: false,
+          output: 'html', // ensure it outputs HTML for the renderer
+        }));
+      }
+
+      // 2. Custom renderer to handle image alignment via URL hash
       window.marked.use({
         renderer: {
           // @ts-ignore - Handling dynamic arguments for Marked v14+ compatibility
@@ -91,20 +127,26 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
         }
       });
     }
-  }, []);
+  }, [markedReady]);
 
   // The Pagination Logic
   useEffect(() => {
     const paginate = async () => {
-      if (!window.marked || !measureRef.current) return;
+      if (!markedReady || !window.marked || !measureRef.current) return;
 
       // 0. Parse Frontmatter to separate config from content
       const { config, content } = parseFrontmatter(markdown);
       setDocConfig(config);
 
       // 1. Parse Markdown Content to HTML
-      const parseResult = window.marked.parse(content);
-      const fullHtml = parseResult instanceof Promise ? await parseResult : parseResult;
+      let fullHtml = '';
+      try {
+        const parseResult = window.marked.parse(content);
+        fullHtml = parseResult instanceof Promise ? await parseResult : parseResult;
+      } catch (e) {
+        console.error("Markdown parsing failed", e);
+        return;
+      }
 
       // 2. Inject into hidden container to measure
       const measureContainer = measureRef.current;
@@ -172,7 +214,7 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
     const timer = setTimeout(paginate, 100);
     return () => clearTimeout(timer);
 
-  }, [markdown, font]); // Re-run when markdown or font changes
+  }, [markdown, font, markedReady]); // Re-run when markdown or font changes, or when lib is ready
 
   // Styles
   // We apply the font family to the outer container so measurement is accurate
@@ -210,11 +252,22 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
   const bgOpacity = docConfig['bg-opacity'] ? parseFloat(docConfig['bg-opacity']) : 1;
   const bgRotate = docConfig['bg-rotate'] || '0';
   // Map configuration to valid CSS background-size
-  let bgSize = 'cover'; // Default
-  if (docConfig['bg-fit'] === 'stretch') bgSize = '100% 100%';
-  else if (docConfig['bg-fit'] === 'contain') bgSize = 'contain';
+  let bgFit = 'cover'; // Default
+  if (docConfig['bg-size']) bgFit = docConfig['bg-size'];
+  else if (docConfig['bg-fit'] === 'stretch') bgFit = '100% 100%';
+  else if (docConfig['bg-fit'] === 'contain') bgFit = 'contain';
+
+  const bgRepeat = docConfig['bg-repeat'] || 'no-repeat';
 
   const rotationVal = bgRotate.includes('deg') ? bgRotate : `${bgRotate}deg`;
+
+  if (!markedReady) {
+    return (
+        <div className="flex items-center justify-center h-full text-slate-500">
+            Initializing PDF Preview Engine...
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center bg-slate-200/50 p-4 sm:p-8 overflow-y-auto h-full w-full">
@@ -240,9 +293,9 @@ const Preview: React.FC<PreviewProps> = ({ markdown, font }) => {
                     className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
                     style={{
                       backgroundImage: `url("${bgImage}")`,
-                      backgroundSize: bgSize,
+                      backgroundSize: bgFit,
                       backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
+                      backgroundRepeat: bgRepeat,
                       opacity: bgOpacity,
                       transform: `rotate(${rotationVal})`,
                       transformOrigin: 'center center'

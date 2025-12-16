@@ -15,12 +15,15 @@ date: true
 # bg-opacity: 0.5
 # bg-rotate: 0
 # bg-fit: cover  # Options: cover, contain, stretch
+# bg-size: 50%   # Overrides bg-fit, use specific units
+# bg-repeat: repeat # Options: repeat, no-repeat
 ---
 # Markdown to PDF
 ## Introduction
 Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert it into a beautifully paginated PDF.
 
 ## Features
+- **Latex Support**: Write complex math formulas easily.
 - **Page Headers**: Configure header text and date at the top of the file.
 - **Page Backgrounds**: Set \`bg-image\`, \`bg-opacity\`, \`bg-rotate\`, and \`bg-fit\` in the config block.
 - **Live Preview**: See how your document looks as you type.
@@ -28,7 +31,17 @@ Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert 
 - **Manual Pagination**: Insert page breaks exactly where you want them.
 - **Custom Fonts**: Switch between Serif, Sans-Serif, and more.
 - **Image Layouts**: Align images easily using hash tags.
-- **Local Images**: Upload images directly from your computer.
+
+## LaTeX Math Support
+You can include mathematical formulas using LaTeX syntax.
+
+**Inline Math:**
+The energy-mass equivalence formula is $E = mc^2$.
+
+**Block Math:**
+$$
+\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
+$$
 
 ## Image Layout Examples
 You can control image alignment by adding hash tags to the image URL.
@@ -44,11 +57,6 @@ Use \`#float-left\` or \`#float-right\` to wrap text around images.
 
 ![Float Left](https://via.placeholder.com/150/0000FF/FFFFFF?text=Float+Left#float-left)
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-
-### Grid Layout
-Use \`#half\` or \`#third\` to place images side-by-side.
-
-![Half Width 1](https://via.placeholder.com/300x150/008000/FFFFFF?text=Half+Width+1#half) ![Half Width 2](https://via.placeholder.com/300x150/FFA500/FFFFFF?text=Half+Width+2#half)
 
 ## Typography
 > "Design is not just what it looks like and feels like. Design is how it works." - Steve Jobs

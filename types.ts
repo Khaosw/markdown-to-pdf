@@ -16,6 +16,7 @@ export enum EditorMode {
         parse: (text: string) => string | Promise<string>;
         use: (options: any) => void;
       };
+      markedKatex: (options: any) => any;
       html2pdf: () => {
         set: (opt: any) => any;
         from: (element: HTMLElement) => any;

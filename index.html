@@ -7,6 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Markdown Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX for LaTeX Math Support -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Remove defer to ensure it loads before the extension -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <!-- Marked KaTeX Extension -->
+    <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension/lib/index.umd.js"></script>
     <!-- HTML to PDF Converter -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -272,6 +278,9 @@
       /* Grid Layouts */
       .pdf-content img.width-half { width: 48%; display: inline-block; margin: 0.5%; vertical-align: top; }
       .pdf-content img.width-third { width: 31%; display: inline-block; margin: 0.5%; vertical-align: top; }
+
+      /* KaTeX Overrides for Preview */
+      .katex { font-size: 1.1em; }
     </style>
   <script type="importmap">
 {
