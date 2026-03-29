@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { enhanceMarkdown, generateTableOfContents } from './services/geminiService';
 import { downloadPDF } from './utils/pdfUtils';
 import { EditorMode } from './types';
 import Preview from './components/Preview';
-import { 
-    IconWand, IconDownload, IconEye, IconPen, IconSplit, IconRefresh, IconTrash, IconPageBreak, IconFont, IconImage, IconCornerDownLeft
+import {
+    IconDownload, IconEye, IconPen, IconSplit, IconRefresh, IconTrash, IconPageBreak, IconFont, IconImage, IconCornerDownLeft
 } from './components/Icons';
 
 // Default markdown placeholder
@@ -20,14 +19,13 @@ date: true
 ---
 # Markdown to PDF
 ## Introduction
-Welcome to **MarkPrint AI**! This tool allows you to write Markdown and convert it into a beautifully paginated PDF.
+Welcome to **MarkPrint**! This tool allows you to write Markdown and convert it into a beautifully paginated PDF.
 
 ## Features
 - **Latex Support**: Write complex math formulas easily.
 - **Page Headers**: Configure header text and date at the top of the file.
 - **Page Backgrounds**: Set \`bg-image\`, \`bg-opacity\`, \`bg-rotate\`, and \`bg-fit\` in the config block.
 - **Live Preview**: See how your document looks as you type.
-- **AI Enhancement**: Use Gemini to fix grammar, improve tone, or summarize.
 - **Manual Pagination**: Insert page breaks exactly where you want them.
 - **Custom Fonts**: Switch between Serif, Sans-Serif, and more.
 - **Image Layouts**: Align images easily using hash tags.
@@ -83,39 +81,12 @@ const FONT_OPTIONS = [
 const App: React.FC = () => {
   const [markdown, setMarkdown] = useState<string>(DEFAULT_MARKDOWN);
   const [mode, setMode] = useState<EditorMode>(EditorMode.SPLIT);
-  const [isEnhancing, setIsEnhancing] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [showAiMenu, setShowAiMenu] = useState(false);
   const [showFontMenu, setShowFontMenu] = useState(false);
   const [selectedFont, setSelectedFont] = useState(FONT_OPTIONS[0].value);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAiAction = async (action: 'grammar' | 'professional' | 'toc' | 'summarize') => {
-    setIsEnhancing(true);
-    setShowAiMenu(false);
-    try {
-        let newText = "";
-        if (action === 'toc') {
-            const toc = await generateTableOfContents(markdown);
-            newText = toc + "\n\n" + markdown;
-        } else {
-            let instruction = "";
-            switch(action) {
-                case 'grammar': instruction = "Fix grammar and spelling mistakes."; break;
-                case 'professional': instruction = "Rewrite this to sound more professional and authoritative."; break;
-                case 'summarize': instruction = "Provide a summary of this content at the beginning."; break;
-            }
-            newText = await enhanceMarkdown(markdown, instruction);
-        }
-        setMarkdown(newText);
-    } catch (e) {
-        alert("AI enhancement failed. Please check console.");
-    } finally {
-        setIsEnhancing(false);
-    }
-  };
 
   const handleDownload = async () => {
     setIsGeneratingPdf(true);
@@ -224,7 +195,7 @@ const App: React.FC = () => {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <span className="font-bold text-xl text-white">M</span>
             </div>
-            <h1 className="font-bold text-xl tracking-tight text-slate-800">MarkPrint AI</h1>
+            <h1 className="font-bold text-xl tracking-tight text-slate-800">MarkPrint</h1>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
@@ -287,30 +258,6 @@ const App: React.FC = () => {
                 )}
             </div>
 
-            {/* AI Menu Dropdown */}
-            <div className="relative">
-                <button 
-                    onClick={() => setShowAiMenu(!showAiMenu)}
-                    disabled={isEnhancing}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-all shadow-md shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isEnhancing ? <IconRefresh className="animate-spin" /> : <IconWand />}
-                    <span className="hidden sm:inline">{isEnhancing ? 'Enhancing...' : 'AI Enhance'}</span>
-                </button>
-                
-                {showAiMenu && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden z-50 ring-1 ring-black/5">
-                        <div className="p-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-50">Improvement</div>
-                        <button onClick={() => handleAiAction('grammar')} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">Fix Grammar</button>
-                        <button onClick={() => handleAiAction('professional')} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">Make Professional</button>
-                        <div className="border-t border-slate-100 my-1"></div>
-                        <div className="p-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-50">Structure</div>
-                        <button onClick={() => handleAiAction('summarize')} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">Add Summary</button>
-                        <button onClick={() => handleAiAction('toc')} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">Generate Table of Contents</button>
-                    </div>
-                )}
-            </div>
-
             <button 
                 onClick={handleDownload}
                 disabled={isGeneratingPdf}
@@ -325,8 +272,8 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex overflow-hidden relative">
         {/* Backdrop for mobile mode toggle */}
-        {(showAiMenu || showFontMenu) && (
-             <div className="fixed inset-0 z-40 bg-transparent" onClick={() => { setShowAiMenu(false); setShowFontMenu(false); }}></div>
+        {showFontMenu && (
+             <div className="fixed inset-0 z-40 bg-transparent" onClick={() => { setShowFontMenu(false); }}></div>
         )}
 
         {/* Editor Panel */}

@@ -3,12 +3,7 @@ export enum EditorMode {
     PREVIEW = 'PREVIEW',
     SPLIT = 'SPLIT'
   }
-  
-  export interface AIRequestConfig {
-    text: string;
-    instruction: string;
-  }
-  
+
   // Declare global libraries loaded via CDN
   declare global {
     interface Window {
